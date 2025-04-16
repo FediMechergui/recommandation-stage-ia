@@ -1,0 +1,87 @@
+id,name,category
+1,Agile,Other
+2,Analytics,Business
+3,Apache Spark,Other
+4,Adobe XD,Design
+5,AWS,DevOps
+6,Azure,DevOps
+7,Business Intelligence,Business
+8,CI/CD,DevOps
+9,Cloud Computing,Other
+10,CSS,Web Development
+11,Critical Thinking,Other
+12,Cybersecurity,Other
+13,Data Analysis,Data Science
+14,Data Pipelines,Other
+15,Data Visualization,Other
+16,Deep Learning,Data Science
+17,Docker,DevOps
+18,ETL,Other
+19,Ethics,Other
+20,Excel,Business
+21,Figma,Design
+22,HTML,Web Development
+23,Infrastructure,Other
+24,Java,Programming
+25,JavaScript,Programming
+26,Kubernetes,DevOps
+27,Kotlin,Programming
+28,Linux,DevOps
+29,Machine Learning,Data Science
+30,Mobile Development,Other
+31,NLP,Data Science
+32,Node.js,Web Development
+33,Network Security,Other
+34,Penetration Testing,Other
+35,Product Strategy,Business
+36,Prototyping,Design
+37,Python,Programming
+38,PyTorch,Data Science
+39,React,Web Development
+40,Research,Other
+41,Security Auditing,Other
+42,Swift,Programming
+43,Tableau,Other
+44,TensorFlow,Data Science
+45,UI Design,Design
+46,UX Research,Design
+47,Git,Programming
+48,SQL,Data Science
+49,REST APIs,Programming
+50,SEO,Web Development
+51,Power BI,Business
+52,Scrum,Other
+53,TypeScript,Programming
+54,MongoDB,DevOps
+55,User Stories,Business
+56,Adobe Photoshop,Design
+57,Statistics,Data Science
+58,Google Cloud,DevOps
+59,UI Animation,Design
+60,Big Data,Other
+61,Scikit-learn,Data Science
+62,Agile Methodologies,Business
+63,Redux,Web Development
+64,PostgreSQL,DevOps
+65,Accessibility,Design
+66,Data Warehousing,Other
+67,GraphQL,Web Development
+68,Go,Programming
+69,Time Series Analysis,Data Science
+70,Adobe Illustrator,Design
+71,Terraform,DevOps
+72,SWOT Analysis,Business
+73,Svelte,Web Development
+74,Matplotlib,Data Science
+75,Microinteractions,Design
+76,Ansible,DevOps
+77,Natural Language Generation,Data Science
+78,Flask,Programming
+79,Google Analytics,Business
+80,UX Writing,Design
+81,Apache Kafka,DevOps
+82,R Shiny,Data Science
+83,WebAssembly,Programming
+84,ServiceNow,Business
+85,Three.js,Web Development
+86,Quantum Computing,Other

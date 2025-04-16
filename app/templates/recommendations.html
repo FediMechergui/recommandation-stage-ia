@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Vos Recommandations - Recommandation d'Offres de Stage par IA{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5">Vos Recommandations de Stages</h1>
+        <p class="lead">Voici les offres de stage qui correspondent le mieux à votre profil</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="alert alert-info" id="loadingMessage">
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                <div>Chargement de vos recommandations personnalisées...</div>
+            </div>
+        </div>
+        <div class="alert alert-warning d-none" id="noProfileMessage">
+            <h5 class="alert-heading">Profil non trouvé</h5>
+            <p>Veuillez créer votre profil pour obtenir des recommandations personnalisées.</p>
+            <hr>
+            <a href="{{ url_for('profile') }}" class="btn btn-primary">Créer mon profil</a>
+        </div>
+        <div class="alert alert-danger d-none" id="errorMessage">
+            Une erreur est survenue lors du chargement des recommandations. Veuillez réessayer.
+        </div>
+    </div>
+</div>
+
+<div class="row" id="recommendationsContainer">
+    <!-- Recommendations will be loaded here -->
+</div>
+
+<template id="internshipCardTemplate">
+{% raw %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{title}}</h5>
+                <span class="badge bg-primary">{{matchPercentage}}% Match</span>
+            </div>
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">{{company}} - {{location}}</h6>
+                <p class="card-text">{{description}}</p>
+                
+                <div class="mb-3">
+                    <h6>Compétences requises:</h6>
+                    <div class="skills-container">
+                        {{#requiredSkills}}
+                        <span class="badge bg-secondary me-1 mb-1">{{.}}</span>
+                        {{/requiredSkills}}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Durée:</strong> {{duration}}<br>
+                    {{#salary}}
+                    <strong>Rémunération:</strong> {{salary}}
+                    {{/salary}}
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2 rating-btn" data-rating="1" data-internship-id="{{id}}">👎</button>
+                    <button class="btn btn-sm btn-outline-primary me-2 rating-btn" data-rating="3" data-internship-id="{{id}}">😐</button>
+                    <button class="btn btn-sm btn-outline-primary rating-btn" data-rating="5" data-internship-id="{{id}}">👍</button>
+                </div>
+                <button class="btn btn-primary apply-btn" data-internship-id="{{id}}">Postuler</button>
+            </div>
+        </div>
+    </div>
+{% endraw %}
+</template>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.1.0/mustache.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userId = localStorage.getItem('userId');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const noProfileMessage = document.getElementById('noProfileMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const recommendationsContainer = document.getElementById('recommendationsContainer');
+        const internshipCardTemplate = document.getElementById('internshipCardTemplate').innerHTML;
+        
+        if (!userId) {
+            // No user profile found
+            loadingMessage.classList.add('d-none');
+            noProfileMessage.classList.remove('d-none');
+            return;
+        }
+        
+        // Fetch user profile
+        fetch(`/api/profile/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Profile not found');
+                }
+                return response.json();
+            })
+            .then(profile => {
+                // Get recommendations based on profile
+                return fetch('/api/get_recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(profile)
+                });
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to get recommendations');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading message
+                loadingMessage.classList.add('d-none');
+                
+                // Check if recommendations exist
+                if (!data.recommendations || data.recommendations.length === 0) {
+                    recommendationsContainer.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Aucune recommandation n'a été trouvée. Veuillez compléter davantage votre profil pour obtenir des recommandations plus précises.
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Render recommendations
+                data.recommendations.forEach((internship, index) => {
+                    // Calculate match percentage (for demo purposes)
+                    const matchPercentage = Math.floor(95 - (index * 5));
+                    
+                    // Prepare data for template
+                    const templateData = {
+                        ...internship,
+                        matchPercentage: matchPercentage
+                    };
+                    
+                    // Render template and append to container
+                    const renderedCard = Mustache.render(internshipCardTemplate, templateData);
+                    const cardElement = document.createElement('div');
+                    cardElement.innerHTML = renderedCard;
+                    recommendationsContainer.appendChild(cardElement.firstElementChild);
+                });
+                
+                // Add event listeners for rating buttons
+                document.querySelectorAll('.rating-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const internshipId = this.getAttribute('data-internship-id');
+                        const rating = parseInt(this.getAttribute('data-rating'));
+                        
+                        // Submit feedback
+                        fetch('/api/feedback', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                user_id: userId,
+                                internship_id: internshipId,
+                                rating: rating
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Highlight selected button
+                                const ratingButtons = document.querySelectorAll(`.rating-btn[data-internship-id="${internshipId}"]`);
+                                ratingButtons.forEach(btn => {
+                                    btn.classList.remove('btn-primary');
+                                    btn.classList.add('btn-outline-primary');
+                                });
+                                this.classList.remove('btn-outline-primary');
+                                this.classList.add('btn-primary');
+                                
+                                // Show feedback message
+                                alert('Merci pour votre retour ! Vos préférences nous aideront à améliorer vos recommandations.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error submitting feedback:', error);
+                        });
+                    });
+                });
+                
+                // Add event listeners for apply buttons
+                document.querySelectorAll('.apply-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const internshipId = this.getAttribute('data-internship-id');
+                        alert('Fonctionnalité de candidature en cours de développement. Bientôt disponible !');
+                    });
+                });
+            })
+            .catch(error => {
+                // Show error message
+                loadingMessage.classList.add('d-none');
+                
+                if (error.message === 'Profile not found') {
+                    noProfileMessage.classList.remove('d-none');
+                } else {
+                    errorMessage.classList.remove('d-none');
+                    console.error('Error loading recommendations:', error);
+                }
+            });
+    });
+</script>
+{% endblock %}

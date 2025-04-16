@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Créer votre profil - Recommandation d'Offres de Stage par IA{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5">Créez votre profil</h1>
+        <p class="lead">Renseignez vos informations pour obtenir des recommandations personnalisées</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <form id="profileForm">
+                    <input type="hidden" id="userId" name="user_id">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="skills" class="form-label">Compétences</label>
+                        <select class="form-control" id="skills" name="skills" multiple required>
+                            <!-- Skills will be loaded dynamically -->
+                        </select>
+                        <small class="form-text text-muted">Sélectionnez ou tapez vos compétences</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="education" class="form-label">Formation</label>
+                        <textarea class="form-control" id="education" name="education" rows="3" required placeholder="Ex: Master en Informatique, Université de Paris, 2023-2025"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="experience" class="form-label">Expériences professionnelles</label>
+                        <textarea class="form-control" id="experience" name="experience" rows="3" placeholder="Ex: Stage de développement web chez XYZ, 3 mois, 2023"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="interests" class="form-label">Centres d'intérêt professionnels</label>
+                        <textarea class="form-control" id="interests" name="interests" rows="2" placeholder="Ex: Intelligence Artificielle, Développement Web, Data Science"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Localisation préférée</label>
+                        <input type="text" class="form-control" id="location" name="location" placeholder="Ex: Paris, Lyon, Marseille">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Durée de stage souhaitée</label>
+                        <select class="form-control" id="duration" name="duration">
+                            <option value="">Sélectionnez une durée</option>
+                            <option value="1-2">1-2 mois</option>
+                            <option value="3-4">3-4 mois</option>
+                            <option value="5-6">5-6 mois</option>
+                            <option value="6+">Plus de 6 mois</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="saveProfile">Enregistrer mon profil</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for skills
+        $('#skills').select2({
+            tags: true,
+            tokenSeparators: [',', ' '],
+            placeholder: 'Sélectionnez vos compétences',
+            allowClear: true
+        });
+        
+        // Load skills from API
+        fetch('/api/skills')
+            .then(response => response.json())
+            .then(data => {
+                if (data.skills) {
+                    const skillsSelect = document.getElementById('skills');
+                    data.skills.forEach(skill => {
+                        const option = new Option(skill.name, skill.name, false, false);
+                        skillsSelect.appendChild(option);
+                    });
+                    // Trigger change to update Select2
+                    $(skillsSelect).trigger('change');
+                }
+            })
+            .catch(error => console.error('Error loading skills:', error));
+        
+        // Check if user profile exists in localStorage
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+            document.getElementById('userId').value = userId;
+            
+            // Load user profile
+            fetch(`/api/profile/${userId}`)
+                .then(response => response.json())
+                .then(profile => {
+                    // Fill form with profile data
+                    document.getElementById('name').value = profile.name || '';
+                    document.getElementById('email').value = profile.email || '';
+                    document.getElementById('education').value = profile.education || '';
+                    document.getElementById('experience').value = profile.experience || '';
+                    document.getElementById('interests').value = profile.interests || '';
+                    document.getElementById('location').value = profile.location || '';
+                    document.getElementById('duration').value = profile.duration || '';
+                    
+                    // Set skills
+                    if (profile.skills && profile.skills.length > 0) {
+                        const skillsSelect = document.getElementById('skills');
+                        profile.skills.forEach(skill => {
+                            // Check if option already exists
+                            let option = Array.from(skillsSelect.options).find(opt => opt.value === skill);
+                            
+                            if (!option) {
+                                option = new Option(skill, skill, true, true);
+                                skillsSelect.appendChild(option);
+                            } else {
+                                option.selected = true;
+                            }
+                        });
+                        // Trigger change to update Select2
+                        $(skillsSelect).trigger('change');
+                    }
+                })
+                .catch(error => console.error('Error loading profile:', error));
+        }
+        
+        // Handle form submission
+        document.getElementById('profileForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const profileData = {
+                user_id: formData.get('user_id') || undefined,
+                name: formData.get('name'),
+                email: formData.get('email'),
+                skills: Array.from($('#skills').select2('data')).map(item => item.text),
+                education: formData.get('education'),
+                experience: formData.get('experience'),
+                interests: formData.get('interests'),
+                location: formData.get('location'),
+                duration: formData.get('duration')
+            };
+            
+            // Save profile
+            fetch('/api/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(profileData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store user ID in localStorage
+                    localStorage.setItem('userId', data.user_id);
+                    
+                    // Redirect to recommendations page
+                    window.location.href = '/recommendations';
+                } else {
+                    alert('Une erreur est survenue. Veuillez réessayer.');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving profile:', error);
+                alert('Une erreur est survenue. Veuillez réessayer.');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-12 text-center">
+        <h1 class="display-4 mb-4">Recommandation d'Offres de Stage par IA</h1>
+        <p class="lead">
+            Trouvez des offres de stage parfaitement adaptées à votre profil grâce à notre système de recommandation intelligent
+        </p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">Créez votre profil</h3>
+                <p class="card-text">Renseignez vos compétences, votre domaine d'études et vos expériences pour obtenir des recommandations personnalisées</p>
+                <a href="{{ url_for('profile') }}" class="btn btn-primary">Créer mon profil</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">Découvrez des offres</h3>
+                <p class="card-text">Notre système analyse votre profil et vous propose les offres de stage qui correspondent le mieux à vos compétences</p>
+                <a href="{{ url_for('recommendations') }}" class="btn btn-primary">Voir les recommandations</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">Postulez facilement</h3>
+                <p class="card-text">Accédez directement aux offres recommandées et postulez en quelques clics</p>
+                <a href="{{ url_for('recommendations') }}" class="btn btn-primary">Commencer</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Notre technologie</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <h4>Filtrage Collaboratif</h4>
+                        <p>Notre système analyse les interactions des utilisateurs pour recommander des offres similaires à celles approuvées par des profils analogues.</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h4>K-Nearest Neighbors</h4>
+                        <p>Nous mesurons la similarité entre les profils d'utilisateurs en fonction de leurs compétences et expériences pour sélectionner les offres les plus pertinentes.</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h4>Traitement du Langage Naturel</h4>
+                        <p>Nous utilisons des technologies comme Word2Vec et BERT pour comprendre le sens de vos compétences et des descriptions de postes, même avec des formulations différentes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

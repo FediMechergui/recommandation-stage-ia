@@ -1,0 +1,28 @@
+# requirements.txt for Internship Recommendation System
+# Compatible with Python 3.10.x
+
+# Web Framework
+flask==2.0.1
+werkzeug==2.0.3
+flask-restful==0.3.9
+flask-sqlalchemy==2.5.1
+flask-cors==3.0.10
+
+# Database
+sqlalchemy==1.4.23
+pymysql==1.0.2
+
+# Machine Learning
+scikit-learn==1.0.2
+numpy==1.22.3
+pandas==1.4.2
+
+# NLP
+gensim==4.3.1
+nltk==3.7
+transformers==4.18.0
+torch==1.11.0
+
+# Utilities
+python-dotenv==0.19.0
+joblib==1.0.1
